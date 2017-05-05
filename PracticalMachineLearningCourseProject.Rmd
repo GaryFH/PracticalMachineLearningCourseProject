@@ -1,0 +1,38 @@
+---
+title: "Practical Machine Learning Course Project"
+author: "GaryFH"
+date: "May 4, 2017"
+output: html_document
+---
+
+###Setup
+
+```{r message=FALSE,warning=FALSE}
+library(AppliedPredictiveModeling);library(caret);library(rpart);library(pgmm);library(ElemStatLearn)
+library(rpart.plot);library(rattle);library(e1071);library(forecast);library(gbm);library(plyr)
+library(lubridate);library(dplyr);library(ggplot2)
+
+```
+
+
+#OVERVIEW
+#### Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset). 
+
+##DOWNLOAD DATA (From working directory)
+#####The training data for this project are available here: https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
+#####The test data are available here: https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
+
+
+```{r download}
+traindata<-read.csv("pml-training.csv")
+testdata<-read.csv("pml-testing.csv")
+train<-tbl_df(traindata)
+test<-tbl_df(testdata)
+dim(train)
+dim(test)
+```
+
+
+
+
+
