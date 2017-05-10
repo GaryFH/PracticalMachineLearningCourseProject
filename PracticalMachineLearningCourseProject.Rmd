@@ -10,7 +10,7 @@ output: html_document
 ```{r message=FALSE,warning=FALSE}
 library(AppliedPredictiveModeling);library(caret);library(rpart);library(pgmm);library(ElemStatLearn)
 library(rpart.plot);library(rattle);library(e1071);library(forecast);library(gbm);library(plyr)
-library(lubridate);library(dplyr);library(ggplot2)
+library(lubridate);library(dplyr);library(ggplot2);library(lattice)
 
 ```
 
@@ -24,12 +24,74 @@ library(lubridate);library(dplyr);library(ggplot2)
 
 
 ```{r download}
-traindata<-read.csv("pml-training.csv")
-testdata<-read.csv("pml-testing.csv")
-train<-tbl_df(traindata)
-test<-tbl_df(testdata)
+        traindata<-read.csv("pml-training.csv")
+        testdata<-read.csv("pml-testing.csv")
+        traina<-tbl_df(traindata)
+        testa<-tbl_df(testdata)
+        dim(traina)
+        dim(testa)
+```
+
+#how many different types of classe exist
+
+
+```{r howmanyclasses}
+        trainb<-group_by(traina,classe)
+        trainc<-arrange(trainb,classe)
+        traind<-summarise(trainc,n_distinct(classe))
+        traind[,1]
+
+```
+
+
+### Remove near zero variables and Remove variable with mostly (90%+) NA's.  Also remove first five columns(id only)
+
+```{r cleanup}
+nza<-nearZeroVar(traina)
+traine<-traina[,-nza]
+testb<-testa[,-nza]
+mostNA<-sapply(traine, function(x) mean(is.na(x)))>=.95
+trainf<-traine[,mostNA==F]
+testc<-testb[,mostNA==F]
+train<-trainf[,-(1:5)]
+test<-testc[,-(1:5)]
+
 dim(train)
 dim(test)
+
+```
+
+
+### How many observations of each classe are found?
+
+```{r HowManyEachClass}
+        NumA<-nrow( filter(train,classe=="A"))
+        NumA
+        NumB<-nrow( filter(train,classe=="B"))
+        NumB
+        NumC<-nrow( filter(train,classe=="C"))
+        NumC
+        NumD<-nrow( filter(train,classe=="D"))
+        NumD
+        NumE<-nrow( filter(train,classe=="E"))
+        NumE
+        Totalclasse<-NumA+NumB+NumC+NumD+NumE
+        Totalclasse
+        
+```
+
+
+### Split main training database into two training datasets
+
+```{r Split}
+set.seed(100)
+split<-createDataPartition(y=train$classe,p=.7,list = F)
+trainbig<-train[split,]
+trainsmall<-train[-split,]
+
+dim(trainbig)
+dim(trainsmall)
+
 ```
 
 
