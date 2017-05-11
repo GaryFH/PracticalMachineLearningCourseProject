@@ -10,7 +10,7 @@ output: html_document
 ```{r message=FALSE,warning=FALSE}
 library(AppliedPredictiveModeling);library(caret);library(rpart);library(pgmm);library(ElemStatLearn)
 library(rpart.plot);library(rattle);library(e1071);library(forecast);library(gbm);library(plyr)
-library(lubridate);library(dplyr);library(ggplot2);library(lattice)
+library(lubridate);library(dplyr);library(ggplot2);library(lattice);library(randomForest)
 
 ```
 
@@ -53,11 +53,11 @@ testb<-testa[,-nza]
 mostNA<-sapply(traine, function(x) mean(is.na(x)))>=.95
 trainf<-traine[,mostNA==F]
 testc<-testb[,mostNA==F]
-train<-trainf[,-(1:5)]
-test<-testc[,-(1:5)]
+Train<-trainf[,-(1:5)]
+Test<-testc[,-(1:5)]
 
-dim(train)
-dim(test)
+dim(Train)
+dim(Test)
 
 ```
 
@@ -65,15 +65,15 @@ dim(test)
 ### How many observations of each classe are found?
 
 ```{r HowManyEachClass}
-        NumA<-nrow( filter(train,classe=="A"))
+        NumA<-nrow( filter(Train,classe=="A"))
         NumA
-        NumB<-nrow( filter(train,classe=="B"))
+        NumB<-nrow( filter(Train,classe=="B"))
         NumB
-        NumC<-nrow( filter(train,classe=="C"))
+        NumC<-nrow( filter(Train,classe=="C"))
         NumC
-        NumD<-nrow( filter(train,classe=="D"))
+        NumD<-nrow( filter(Train,classe=="D"))
         NumD
-        NumE<-nrow( filter(train,classe=="E"))
+        NumE<-nrow( filter(Train,classe=="E"))
         NumE
         Totalclasse<-NumA+NumB+NumC+NumD+NumE
         Totalclasse
@@ -85,16 +85,54 @@ dim(test)
 
 ```{r Split}
 set.seed(100)
-split<-createDataPartition(y=train$classe,p=.7,list = F)
-trainbig<-train[split,]
-trainsmall<-train[-split,]
+split<-createDataPartition(y=Train$classe,p=.7,list = F)
+trainbig<-Train[split,]
+trainsmall<-Train[-split,]
 
 dim(trainbig)
 dim(trainsmall)
 
 ```
 
+## Use machine learning functions to creat a model
+
+### Try Model Building with "Random Forest"
+
+```{r RandomForest}
+set.seed(200)
+control<-trainControl(method = "cv",number = 3,verboseIter = F)
+
+RFmodelbig<-train(classe~.,data=trainbig,method="rf",trControl=control)
+RFmodelbig$finalModel
+```
+
+### Assess accuracy of RF model
+
+```{r RFassessment}
+RFpred<-predict(RFmodelbig,newdata = trainsmall)
+RF<-confusionMatrix(trainsmall$classe,RFpred)
+RF
 
 
+```
+
+### Try Model Building with "Generalized Boosted Model"(GBM) and assess accuracy GBM model
+
+```{r}
+set.seed(200)
+GBMmodelbig<-train(classe~.,data=trainbig,method="gbm",trControl=control)
+GBMpred<-predict(GBMmodelbig,newdata = trainsmall)
+GBM<-confusionMatrix(trainsmall$classe,GBMpred)
+GBM
+GBMmodelbig$finalModel
+```
+
+### Both RF and GBM had good accuracy - RF was the better of the two methods and therefore used RF (99.8% accurate) to predict the classe for each of the twenty observations in the "test" database.
+
+```{r prediction}
+FinalPred<-predict(RFmodelbig,newdata = Test)
+FinalPreddf<-data.frame(Test_ID=Test$problem_id,PredictClass=FinalPred)
+FinalPreddf
+```
 
 

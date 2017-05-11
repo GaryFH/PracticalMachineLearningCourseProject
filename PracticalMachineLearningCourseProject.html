@@ -127,7 +127,7 @@ $(document).ready(function () {
 <h3>Setup</h3>
 <pre class="r"><code>library(AppliedPredictiveModeling);library(caret);library(rpart);library(pgmm);library(ElemStatLearn)
 library(rpart.plot);library(rattle);library(e1071);library(forecast);library(gbm);library(plyr)
-library(lubridate);library(dplyr);library(ggplot2);library(lattice)</code></pre>
+library(lubridate);library(dplyr);library(ggplot2);library(lattice);library(randomForest)</code></pre>
 </div>
 <div id="overview" class="section level1">
 <h1>OVERVIEW</h1>
@@ -174,29 +174,29 @@ testb&lt;-testa[,-nza]
 mostNA&lt;-sapply(traine, function(x) mean(is.na(x)))&gt;=.95
 trainf&lt;-traine[,mostNA==F]
 testc&lt;-testb[,mostNA==F]
-train&lt;-trainf[,-(1:5)]
-test&lt;-testc[,-(1:5)]
+Train&lt;-trainf[,-(1:5)]
+Test&lt;-testc[,-(1:5)]
 
-dim(train)</code></pre>
+dim(Train)</code></pre>
 <pre><code>## [1] 19622    54</code></pre>
-<pre class="r"><code>dim(test)</code></pre>
+<pre class="r"><code>dim(Test)</code></pre>
 <pre><code>## [1] 20 54</code></pre>
 </div>
 <div id="how-many-observations-of-each-classe-are-found" class="section level3">
 <h3>How many observations of each classe are found?</h3>
-<pre class="r"><code>        NumA&lt;-nrow( filter(train,classe==&quot;A&quot;))
+<pre class="r"><code>        NumA&lt;-nrow( filter(Train,classe==&quot;A&quot;))
         NumA</code></pre>
 <pre><code>## [1] 5580</code></pre>
-<pre class="r"><code>        NumB&lt;-nrow( filter(train,classe==&quot;B&quot;))
+<pre class="r"><code>        NumB&lt;-nrow( filter(Train,classe==&quot;B&quot;))
         NumB</code></pre>
 <pre><code>## [1] 3797</code></pre>
-<pre class="r"><code>        NumC&lt;-nrow( filter(train,classe==&quot;C&quot;))
+<pre class="r"><code>        NumC&lt;-nrow( filter(Train,classe==&quot;C&quot;))
         NumC</code></pre>
 <pre><code>## [1] 3422</code></pre>
-<pre class="r"><code>        NumD&lt;-nrow( filter(train,classe==&quot;D&quot;))
+<pre class="r"><code>        NumD&lt;-nrow( filter(Train,classe==&quot;D&quot;))
         NumD</code></pre>
 <pre><code>## [1] 3216</code></pre>
-<pre class="r"><code>        NumE&lt;-nrow( filter(train,classe==&quot;E&quot;))
+<pre class="r"><code>        NumE&lt;-nrow( filter(Train,classe==&quot;E&quot;))
         NumE</code></pre>
 <pre><code>## [1] 3607</code></pre>
 <pre class="r"><code>        Totalclasse&lt;-NumA+NumB+NumC+NumD+NumE
@@ -206,14 +206,24 @@ dim(train)</code></pre>
 <div id="split-main-training-database-into-two-training-datasets" class="section level3">
 <h3>Split main training database into two training datasets</h3>
 <pre class="r"><code>set.seed(100)
-split&lt;-createDataPartition(y=train$classe,p=.7,list = F)
-trainbig&lt;-train[split,]
-trainsmall&lt;-train[-split,]
+split&lt;-createDataPartition(y=Train$classe,p=.7,list = F)
+trainbig&lt;-Train[split,]
+trainsmall&lt;-Train[-split,]
 
 dim(trainbig)</code></pre>
 <pre><code>## [1] 13737    54</code></pre>
 <pre class="r"><code>dim(trainsmall)</code></pre>
 <pre><code>## [1] 5885   54</code></pre>
+</div>
+<div id="use-machine-learning-functions-to-creat-a-model" class="section level2">
+<h2>Use machine learning functions to creat a model</h2>
+<div id="first-try-model-building-with-random-forest" class="section level3">
+<h3>First try Model Building with “Random Forest”</h3>
+<pre class="r"><code>set.seed(200)
+control&lt;-trainControl(method = &quot;cv&quot;,number = 3,verboseIter = F)
+
+RFmodelbig&lt;-train(classe~.,data=trainbig,method=&quot;rf&quot;,trControl=control)</code></pre>
+</div>
 </div>
 </div>
 
