@@ -2,7 +2,7 @@
 title: "Practical Machine Learning Course Project"
 author: "GaryFH"
 date: "May 4, 2017"
-output: html_document
+output: md_document
 ---
 
 ###Setup
@@ -44,7 +44,7 @@ library(lubridate);library(dplyr);library(ggplot2);library(lattice);library(rand
 ```
 
 
-### Remove near zero variables and Remove variable with mostly (90%+) NA's.  Also remove first five columns(id only)
+### Remove near zero variables and Remove variable with mostly (95%+) NA's.  Also remove first five columns(id only)
 
 ```{r cleanup}
 nza<-nearZeroVar(traina)
@@ -100,7 +100,7 @@ dim(trainsmall)
 
 ```{r RandomForest}
 set.seed(200)
-control<-trainControl(method = "cv",number = 3,verboseIter = F)
+control<-trainControl(method = "cv",number = 3,verboseIter = FALSE)
 
 RFmodelbig<-train(classe~.,data=trainbig,method="rf",trControl=control)
 RFmodelbig$finalModel
@@ -118,13 +118,14 @@ RF
 
 ### Try Model Building with "Generalized Boosted Model"(GBM) and assess accuracy GBM model
 
-```{r}
+```{r }
 set.seed(200)
-GBMmodelbig<-train(classe~.,data=trainbig,method="gbm",trControl=control)
+GBMmodelbig<-train(classe~.,data=trainbig,method="gbm",trControl=control,verbose=FALSE)
 GBMpred<-predict(GBMmodelbig,newdata = trainsmall)
 GBM<-confusionMatrix(trainsmall$classe,GBMpred)
-GBM
 GBMmodelbig$finalModel
+GBM
+
 ```
 
 ### Both RF and GBM had good accuracy - RF was the better of the two methods and therefore used RF (99.8% accurate) to predict the classe for each of the twenty observations in the "test" database.
@@ -134,5 +135,7 @@ FinalPred<-predict(RFmodelbig,newdata = Test)
 FinalPreddf<-data.frame(Test_ID=Test$problem_id,PredictClass=FinalPred)
 FinalPreddf
 ```
+
+## Conclusion - the Random Forest Method of model building proved itself very accurate (over 99%) for this project.    Combining multiple models was not considered essential since the RF method proved itself so accurate.
 
 

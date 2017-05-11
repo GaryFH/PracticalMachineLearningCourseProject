@@ -217,13 +217,139 @@ dim(trainbig)</code></pre>
 </div>
 <div id="use-machine-learning-functions-to-creat-a-model" class="section level2">
 <h2>Use machine learning functions to creat a model</h2>
-<div id="first-try-model-building-with-random-forest" class="section level3">
-<h3>First try Model Building with “Random Forest”</h3>
+<div id="try-model-building-with-random-forest" class="section level3">
+<h3>Try Model Building with “Random Forest”</h3>
 <pre class="r"><code>set.seed(200)
-control&lt;-trainControl(method = &quot;cv&quot;,number = 3,verboseIter = F)
+control&lt;-trainControl(method = &quot;cv&quot;,number = 3,verboseIter = FALSE)
 
-RFmodelbig&lt;-train(classe~.,data=trainbig,method=&quot;rf&quot;,trControl=control)</code></pre>
+RFmodelbig&lt;-train(classe~.,data=trainbig,method=&quot;rf&quot;,trControl=control)
+RFmodelbig$finalModel</code></pre>
+<pre><code>## 
+## Call:
+##  randomForest(x = x, y = y, mtry = param$mtry) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 27
+## 
+##         OOB estimate of  error rate: 0.24%
+## Confusion matrix:
+##      A    B    C    D    E  class.error
+## A 3904    1    0    0    1 0.0005120328
+## B    4 2650    2    2    0 0.0030097818
+## C    0    6 2390    0    0 0.0025041736
+## D    0    0    8 2243    1 0.0039964476
+## E    0    1    0    7 2517 0.0031683168</code></pre>
 </div>
+<div id="assess-accuracy-of-rf-model" class="section level3">
+<h3>Assess accuracy of RF model</h3>
+<pre class="r"><code>RFpred&lt;-predict(RFmodelbig,newdata = trainsmall)
+RF&lt;-confusionMatrix(trainsmall$classe,RFpred)
+RF</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 1674    0    0    0    0
+##          B    6 1133    0    0    0
+##          C    0    0 1026    0    0
+##          D    0    0    7  957    0
+##          E    0    0    0    0 1082
+## 
+## Overall Statistics
+##                                           
+##                Accuracy : 0.9978          
+##                  95% CI : (0.9962, 0.9988)
+##     No Information Rate : 0.2855          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9972          
+##  Mcnemar's Test P-Value : NA              
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            0.9964   1.0000   0.9932   1.0000   1.0000
+## Specificity            1.0000   0.9987   1.0000   0.9986   1.0000
+## Pos Pred Value         1.0000   0.9947   1.0000   0.9927   1.0000
+## Neg Pred Value         0.9986   1.0000   0.9986   1.0000   1.0000
+## Prevalence             0.2855   0.1925   0.1755   0.1626   0.1839
+## Detection Rate         0.2845   0.1925   0.1743   0.1626   0.1839
+## Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
+## Balanced Accuracy      0.9982   0.9994   0.9966   0.9993   1.0000</code></pre>
+</div>
+<div id="try-model-building-with-generalized-boosted-modelgbm-and-assess-accuracy-gbm-model" class="section level3">
+<h3>Try Model Building with “Generalized Boosted Model”(GBM) and assess accuracy GBM model</h3>
+<pre class="r"><code>set.seed(200)
+GBMmodelbig&lt;-train(classe~.,data=trainbig,method=&quot;gbm&quot;,trControl=control,verbose=FALSE)
+GBMpred&lt;-predict(GBMmodelbig,newdata = trainsmall)
+GBM&lt;-confusionMatrix(trainsmall$classe,GBMpred)
+GBMmodelbig$finalModel</code></pre>
+<pre><code>## A gradient boosted model with multinomial loss function.
+## 150 iterations were performed.
+## There were 53 predictors of which 43 had non-zero influence.</code></pre>
+<pre class="r"><code>GBM</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 1674    0    0    0    0
+##          B   14 1108   17    0    0
+##          C    0   11 1007    8    0
+##          D    0    3   16  943    2
+##          E    0    6    7    7 1062
+## 
+## Overall Statistics
+##                                          
+##                Accuracy : 0.9845         
+##                  95% CI : (0.981, 0.9875)
+##     No Information Rate : 0.2868         
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
+##                                          
+##                   Kappa : 0.9804         
+##  Mcnemar's Test P-Value : NA             
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            0.9917   0.9823   0.9618   0.9843   0.9981
+## Specificity            1.0000   0.9935   0.9961   0.9957   0.9959
+## Pos Pred Value         1.0000   0.9728   0.9815   0.9782   0.9815
+## Neg Pred Value         0.9967   0.9958   0.9918   0.9970   0.9996
+## Prevalence             0.2868   0.1917   0.1779   0.1628   0.1808
+## Detection Rate         0.2845   0.1883   0.1711   0.1602   0.1805
+## Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
+## Balanced Accuracy      0.9959   0.9879   0.9789   0.9900   0.9970</code></pre>
+</div>
+<div id="both-rf-and-gbm-had-good-accuracy---rf-was-the-better-of-the-two-methods-and-therefore-used-rf-99.8-accurate-to-predict-the-classe-for-each-of-the-twenty-observations-in-the-test-database." class="section level3">
+<h3>Both RF and GBM had good accuracy - RF was the better of the two methods and therefore used RF (99.8% accurate) to predict the classe for each of the twenty observations in the “test” database.</h3>
+<pre class="r"><code>FinalPred&lt;-predict(RFmodelbig,newdata = Test)
+FinalPreddf&lt;-data.frame(Test_ID=Test$problem_id,PredictClass=FinalPred)
+FinalPreddf</code></pre>
+<pre><code>##    Test_ID PredictClass
+## 1        1            B
+## 2        2            A
+## 3        3            B
+## 4        4            A
+## 5        5            A
+## 6        6            E
+## 7        7            D
+## 8        8            B
+## 9        9            A
+## 10      10            A
+## 11      11            B
+## 12      12            C
+## 13      13            B
+## 14      14            A
+## 15      15            E
+## 16      16            E
+## 17      17            A
+## 18      18            B
+## 19      19            B
+## 20      20            B</code></pre>
+</div>
+</div>
+<div id="conclusion---the-random-forest-method-of-model-building-proved-itself-very-accurate-over-99-for-this-project.-combining-multiple-models-was-not-considered-essential-since-the-rf-method-proved-itself-so-accurate." class="section level2">
+<h2>Conclusion - the Random Forest Method of model building proved itself very accurate (over 99%) for this project. Combining multiple models was not considered essential since the RF method proved itself so accurate.</h2>
 </div>
 </div>
 
